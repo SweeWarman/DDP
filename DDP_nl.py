@@ -29,11 +29,11 @@ def GenerateInitialTrajectory(X0):
     
 
 variations = {}
-variations['L'] = lambda X,U: (X[0]**2 + X[1]**2 + U[0]**2 + 1.0e2* U[1]**2)*0.5 
-variations['Lx'] = lambda X,U: np.array([[X[0]],[X[1]],[0.0]])
-variations['Lxx'] = lambda X,U: np.array([[1.0, 0.0, 0.0],[0.0,1.0,0.0],[0.0,0.0,0.0]])
-variations['Lu'] = lambda X,U: np.array([[U[0]],[1.0e2*U[1]]])
-variations['Luu'] = lambda X,U: np.array([[1.0, 0.0],[0.0, 1.0e2]])
+variations['L'] = lambda X,U: (1e0*X[0]**2 + 1e0*X[1]**2 + 1.0e2*U[0]**2 + 1.0e2* U[1]**2)*0.5 
+variations['Lx'] = lambda X,U: np.array([[1e0*X[0]],[1e0*X[1]],[0.0]])
+variations['Lxx'] = lambda X,U: np.array([[1e0*1.0, 0.0, 0.0],[0.0,1e0*1.0,0.0],[0.0,0.0,0.0]])
+variations['Lu'] = lambda X,U: np.array([[1.0e2*U[0]],[1.0e2*U[1]]])
+variations['Luu'] = lambda X,U: np.array([[1.0e2, 0.0],[0.0, 1.0e2]])
 variations['Lux'] = lambda X,U: np.array([[0.0,0.0,0.0],[0.0,0.0,0.0]])
 variations['Fx'] = lambda X,U:np.array([[1.0,0.0,-np.sin(X[2])*0.1*U[0]],
                                         [0.0,1.0, np.cos(X[2])*0.1*U[0]],
@@ -49,22 +49,23 @@ variations['Fxx'] = lambda X,U: [np.array([[0.0,0.0,0.0],
 variations['Fuu'] = lambda X,U: [np.array([[0.0,0.0],[0.0, 0.0]]),
                                  np.array([[0.0,0.0],[0.0, 0.0]]),
                                  np.array([[0.0,0.0],[0.0, 0.0]])]
+variations['Fux'] = lambda X,U: [np.array([[0.0, 0.0, -np.sin(X[2])*0.1],[0.0,0.0,0.0]]),
+                                 np.array([[0.0, 0.0,  np.cos(X[2])*0.1],[0.0,0.0,0.0]]),
+                                 np.array([[0.0, 0.0,  0.0],[0.0,0.0,0.0]])]
+
 
 trajectory0,control0 = GenerateInitialTrajectory([10.0,10.0,np.pi])
-traj,ctrl,Vs,DeltaV = DDP.Solve(Model,variations,trajectory0,control0,500)
+traj,ctrl,Vs,DeltaV = DDP.Solve(Model,variations,trajectory0,control0,100)
 N= len(traj)
 plt.figure(1)
-for i in range(N):
+for i in range(N-1,N):
     plt.plot(traj[i][:,0],traj[i][:,1])
 
 plt.figure(2)
-for i in range(N):
+for i in range(N-1,N):
     plt.plot(np.arange(ctrl[i].shape[0]),ctrl[i])
 
 plt.figure(3)
 for i in range(N-1):
     plt.plot(np.arange(len(Vs[i])),Vs[i])
-
-plt.figure(4)
-plt.plot(np.arange(len(DeltaV[0])),DeltaV[0],'o-')
 plt.show()
